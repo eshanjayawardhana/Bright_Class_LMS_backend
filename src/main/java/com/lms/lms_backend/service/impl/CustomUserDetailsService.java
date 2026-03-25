@@ -3,10 +3,12 @@ package com.lms.lms_backend.service.impl;
 import com.lms.lms_backend.entity.User;
 
 import com.lms.lms_backend.repository.UserRepository;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import java.util.Collections;
+import java.util.List;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -28,7 +30,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),
-                Collections.emptyList() // roles later
+                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
         );
     }
 }
