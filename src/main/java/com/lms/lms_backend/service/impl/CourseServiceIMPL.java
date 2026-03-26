@@ -1,0 +1,93 @@
+package com.lms.lms_backend.service.impl;
+
+import com.lms.lms_backend.dto.CourseRequestDTO;
+import com.lms.lms_backend.dto.CourseResponseDTO;
+import com.lms.lms_backend.entity.Course;
+import com.lms.lms_backend.exception.ResourceNotFoundException;
+import com.lms.lms_backend.mapper.CourseMapper;
+import com.lms.lms_backend.repository.CourseRepository;
+import com.lms.lms_backend.service.CourseService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class CourseServiceIMPL implements CourseService {
+
+    private final CourseRepository courseRepository;
+    private final CourseMapper courseMapper;
+
+    @Override
+    public CourseResponseDTO createCourse(CourseRequestDTO request) {
+        // DTO -> Entity (using Builder pattern)
+        Course course = Course.builder()
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .year(request.getYear())
+                .semester(request.getSemester())
+                .category(request.getCategory())
+                .lecturerEmail(request.getLecturerEmail())
+                .build();
+
+        Course savedCourse = courseRepository.save(course);
+        return mapToResponseDTO(savedCourse);
+    }
+
+    @Override
+    public List<CourseResponseDTO> getAllCourses() {
+        return courseRepository.findAll()
+                .stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public CourseResponseDTO getCourseById(Long id) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found with id: " + id));
+
+//        return mapToResponseDTO(course);
+        return courseMapper.toDto(course); // ---> using Course Mapper
+    }
+
+    @Override
+    public CourseResponseDTO updateCourse(Long id, CourseRequestDTO request) {
+        Course existingCourse = courseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found with id: " + id));
+
+        existingCourse.setTitle(request.getTitle());
+        existingCourse.setDescription(request.getDescription());
+        existingCourse.setYear(request.getYear());
+        existingCourse.setSemester(request.getSemester());
+        existingCourse.setCategory(request.getCategory());
+        existingCourse.setLecturerEmail(request.getLecturerEmail());
+
+        Course updatedCourse = courseRepository.save(existingCourse);
+        return mapToResponseDTO(updatedCourse);
+    }
+
+    @Override
+    public void deleteCourse(Long id) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found with id: " + id));
+        courseRepository.delete(course);
+    }
+
+
+
+    // Entity -> Response DTO
+    private CourseResponseDTO mapToResponseDTO(Course course) {
+        return CourseResponseDTO.builder()
+                .id(course.getId())
+                .title(course.getTitle())
+                .description(course.getDescription())
+                .year(course.getYear())
+                .semester(course.getSemester())
+                .category(course.getCategory())
+                .lecturerEmail(course.getLecturerEmail())
+                .build();
+    }
+}
