@@ -1,5 +1,6 @@
 package com.lms.lms_backend.service.impl;
 
+import com.lms.lms_backend.dto.CreateUserRequest;
 import com.lms.lms_backend.dto.LoginRequest;
 import com.lms.lms_backend.dto.LoginResponse;
 import com.lms.lms_backend.dto.RegisterRequest;
@@ -29,6 +30,8 @@ public class UserServiceIMPL implements UserService {
         this.jwtUtil = jwtUtil;
     }
 
+    // Student
+    @Override
     public User register(RegisterRequest request) {
 
         User user = User.builder()
@@ -41,6 +44,40 @@ public class UserServiceIMPL implements UserService {
 
         return userRepository.save(user);
 
+    }
+
+    // Lecture
+    @Override
+    public User createLecture(CreateUserRequest request) {
+
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RuntimeException("Email already exists");
+        }
+
+        User user = User.builder()
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(Role.LECTURER)
+                .status("ACTIVE")
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        return userRepository.save(user);
+    }
+
+    //Admin
+    @Override
+    public User createAdmin(CreateUserRequest request) {
+
+        User user = User.builder()
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(Role.ADMIN)
+                .status("ACTIVE")
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        return userRepository.save(user);
     }
 
     @Override
@@ -60,5 +97,4 @@ public class UserServiceIMPL implements UserService {
                 token
         );
     }
-
 }
