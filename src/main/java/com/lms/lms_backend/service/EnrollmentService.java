@@ -1,15 +1,15 @@
 package com.lms.lms_backend.service;
 
-import com.lms.lms_backend.dto.EnrollmentRequest;
-import com.lms.lms_backend.dto.EnrollmentResponse;
+import com.lms.lms_backend.dto.EnrollmentRequestDTO;
+import com.lms.lms_backend.dto.EnrollmentResponseDTO;
 
 import java.util.List;
 
 public interface EnrollmentService {
-    EnrollmentResponse enroll(EnrollmentRequest enrollmentRequest, String studentEmail);
-    List<EnrollmentResponse> getMyEnrollments(String studentEmail);
-    List<EnrollmentResponse> getPendingEnrollments();
-    EnrollmentResponse approve(Long id);
-    EnrollmentResponse reject(Long id);
+    EnrollmentResponseDTO enroll(EnrollmentRequestDTO enrollmentRequestDTO, String studentEmail);
+    List<EnrollmentResponseDTO> getMyEnrollments(String studentEmail);
+    List<EnrollmentResponseDTO> getPendingEnrollments();
+    EnrollmentResponseDTO approve(Long id);
+    EnrollmentResponseDTO reject(Long id);
 
 }

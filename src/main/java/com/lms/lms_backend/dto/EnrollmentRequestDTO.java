@@ -1,6 +1,6 @@
 package com.lms.lms_backend.dto;
 
-public class EnrollmentRequest {
+public class EnrollmentRequestDTO {
 
     private String fullName;
     private String nic;
@@ -8,10 +8,10 @@ public class EnrollmentRequest {
     private String phone;
     private Long courseId;
 
-    public EnrollmentRequest() {
+    public EnrollmentRequestDTO() {
     }
 
-    public EnrollmentRequest(String fullName, String nic, String bitId, String phone, Long courseId) {
+    public EnrollmentRequestDTO(String fullName, String nic, String bitId, String phone, Long courseId) {
         this.fullName = fullName;
         this.nic = nic;
         this.bitId = bitId;

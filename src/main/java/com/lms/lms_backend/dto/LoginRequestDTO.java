@@ -1,17 +1,14 @@
 package com.lms.lms_backend.dto;
 
-public class CreateUserRequest {
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
+@AllArgsConstructor
+public class LoginRequestDTO {
 
     private String email;
     private String password;
-
-    public CreateUserRequest() {
-    }
-
-    public CreateUserRequest(String email, String password) {
-        this.email = email;
-        this.password = password;
-    }
 
     public String getEmail() {
         return email;
@@ -27,5 +24,13 @@ public class CreateUserRequest {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    @Override
+    public String toString() {
+        return "LoginRequest{" +
+                "email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                '}';
     }
 }

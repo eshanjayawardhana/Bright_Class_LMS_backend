@@ -1,7 +1,7 @@
 package com.lms.lms_backend.mapper;
 
-import com.lms.lms_backend.dto.EnrollmentRequest;
-import com.lms.lms_backend.dto.EnrollmentResponse;
+import com.lms.lms_backend.dto.EnrollmentRequestDTO;
+import com.lms.lms_backend.dto.EnrollmentResponseDTO;
 import com.lms.lms_backend.entity.Course;
 import com.lms.lms_backend.entity.Enrollment;
 import com.lms.lms_backend.entity.User;
@@ -18,10 +18,10 @@ public interface EnrollmentMapper {
     @Mapping(target = "course", source = "course")
     @Mapping(target = "status", constant = "PENDING") // Initially always PENDING
     @Mapping(target = "enrollmentDate", expression = "java(java.time.LocalDateTime.now())")
-    Enrollment toEntity(EnrollmentRequest request, String studentEmail, User student, Course course);
+    Enrollment toEntity(EnrollmentRequestDTO request, String studentEmail, User student, Course course);
 
     // 2. Entity -> ResponseDTO
     @Mapping(target = "courseId", source = "course.id")
     @Mapping(target = "courseTitle", source = "course.title")
-    EnrollmentResponse toDto(Enrollment enrollment);
+    EnrollmentResponseDTO toDto(Enrollment enrollment);
 }

@@ -4,7 +4,7 @@ import com.lms.lms_backend.entity.enums.EnrollmentStatus;
 
 import java.time.LocalDateTime;
 
-public class EnrollmentResponse {
+public class EnrollmentResponseDTO {
     private Long id;
     private String fullName;
     private String nic;
@@ -16,10 +16,10 @@ public class EnrollmentResponse {
     private Long courseId;
     private String courseTitle;
 
-    public EnrollmentResponse() {
+    public EnrollmentResponseDTO() {
     }
 
-    public EnrollmentResponse(Long id, String fullName, String nic, String bitId, String phone, String email, LocalDateTime enrollmentDate, EnrollmentStatus status, Long courseId, String courseTitle) {
+    public EnrollmentResponseDTO(Long id, String fullName, String nic, String bitId, String phone, String email, LocalDateTime enrollmentDate, EnrollmentStatus status, Long courseId, String courseTitle) {
         this.id = id;
         this.fullName = fullName;
         this.nic = nic;

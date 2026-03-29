@@ -1,14 +1,20 @@
 package com.lms.lms_backend.dto;
 
+
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginRequest {
+public class RegisterRequestDTO {
 
+//    private Long id;
     private String email;
     private String password;
+//    private Role role;
+//    private String status;
+//    private LocalDateTime createdAt;
+
 
     public String getEmail() {
         return email;
@@ -28,7 +34,7 @@ public class LoginRequest {
 
     @Override
     public String toString() {
-        return "LoginRequest{" +
+        return "RegisterRequest{" +
                 "email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 '}';

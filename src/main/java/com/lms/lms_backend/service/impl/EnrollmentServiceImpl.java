@@ -1,7 +1,7 @@
 package com.lms.lms_backend.service.impl;
 
-import com.lms.lms_backend.dto.EnrollmentRequest;
-import com.lms.lms_backend.dto.EnrollmentResponse;
+import com.lms.lms_backend.dto.EnrollmentRequestDTO;
+import com.lms.lms_backend.dto.EnrollmentResponseDTO;
 import com.lms.lms_backend.entity.Course;
 import com.lms.lms_backend.entity.Enrollment;
 import com.lms.lms_backend.entity.User;
@@ -32,17 +32,17 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     }
 
     @Override
-    public EnrollmentResponse enroll(EnrollmentRequest enrollmentRequest, String studentEmail) {
+    public EnrollmentResponseDTO enroll(EnrollmentRequestDTO enrollmentRequestDTO, String studentEmail) {
         User student = userRepository.findByEmail(studentEmail).orElseThrow(()-> new RuntimeException("User not found"));
-        Course course = courseRepository.findById(enrollmentRequest.getCourseId()).orElseThrow(()-> new RuntimeException("Course not found"));
+        Course course = courseRepository.findById(enrollmentRequestDTO.getCourseId()).orElseThrow(()-> new RuntimeException("Course not found"));
 
-        Enrollment enrollment = enrollmentMapper.toEntity(enrollmentRequest,studentEmail,student,course);
+        Enrollment enrollment = enrollmentMapper.toEntity(enrollmentRequestDTO,studentEmail,student,course);
         Enrollment saved = enrollmentRepository.save(enrollment);
         return enrollmentMapper.toDto(saved);
     }
 
     @Override
-    public List<EnrollmentResponse> getMyEnrollments(String studentEmail) {
+    public List<EnrollmentResponseDTO> getMyEnrollments(String studentEmail) {
         User student = userRepository.findByEmail(studentEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
@@ -53,7 +53,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     }
 
     @Override
-    public List<EnrollmentResponse> getPendingEnrollments() {
+    public List<EnrollmentResponseDTO> getPendingEnrollments() {
         return enrollmentRepository.findByStatus(EnrollmentStatus.PENDING)
                 .stream()
                 .map(enrollmentMapper::toDto)
@@ -61,7 +61,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     }
 
     @Override
-    public EnrollmentResponse approve(Long id) {
+    public EnrollmentResponseDTO approve(Long id) {
         Enrollment enrollment = enrollmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Enrollment not found"));
 
@@ -72,7 +72,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     }
 
     @Override
-    public EnrollmentResponse reject(Long id) {
+    public EnrollmentResponseDTO reject(Long id) {
         Enrollment enrollment = enrollmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Enrollment not found"));
 

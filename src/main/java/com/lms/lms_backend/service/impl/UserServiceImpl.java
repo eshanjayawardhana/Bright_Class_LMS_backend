@@ -1,28 +1,27 @@
 package com.lms.lms_backend.service.impl;
 
-import com.lms.lms_backend.dto.CreateUserRequest;
-import com.lms.lms_backend.dto.LoginRequest;
-import com.lms.lms_backend.dto.LoginResponse;
-import com.lms.lms_backend.dto.RegisterRequest;
+import com.lms.lms_backend.dto.CreateUserRequestDTO;
+import com.lms.lms_backend.dto.LoginRequestDTO;
+import com.lms.lms_backend.dto.LoginResponseDTO;
+import com.lms.lms_backend.dto.RegisterRequestDTO;
 import com.lms.lms_backend.entity.User;
 import com.lms.lms_backend.entity.enums.Role;
 import com.lms.lms_backend.repository.UserRepository;
 import com.lms.lms_backend.security.JwtUtil;
 import com.lms.lms_backend.service.UserService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 @Service
 //@RequiredArgsConstructor
-public class UserServiceIMPL implements UserService {
+public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    public UserServiceIMPL(UserRepository userRepository,
+    public UserServiceImpl(UserRepository userRepository,
                            PasswordEncoder passwordEncoder,
                            JwtUtil jwtUtil) {
         this.userRepository = userRepository;
@@ -32,7 +31,7 @@ public class UserServiceIMPL implements UserService {
 
     // Student
     @Override
-    public User register(RegisterRequest request) {
+    public User register(RegisterRequestDTO request) {
 
         User user = User.builder()
                 .email(request.getEmail())
@@ -48,7 +47,7 @@ public class UserServiceIMPL implements UserService {
 
     // Lecture
     @Override
-    public User createLecture(CreateUserRequest request) {
+    public User createLecture(CreateUserRequestDTO request) {
 
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("Email already exists");
@@ -67,7 +66,7 @@ public class UserServiceIMPL implements UserService {
 
     //Admin
     @Override
-    public User createAdmin(CreateUserRequest request) {
+    public User createAdmin(CreateUserRequestDTO request) {
 
         User user = User.builder()
                 .email(request.getEmail())
@@ -81,7 +80,7 @@ public class UserServiceIMPL implements UserService {
     }
 
     @Override
-    public LoginResponse login(LoginRequest request) {
+    public LoginResponseDTO login(LoginRequestDTO request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -91,7 +90,7 @@ public class UserServiceIMPL implements UserService {
 
         String token = jwtUtil.generateToken(user.getEmail(),user.getRole().name());
 
-        return new LoginResponse(
+        return new LoginResponseDTO(
                 user.getEmail(),
                 "Login successful",
                 token

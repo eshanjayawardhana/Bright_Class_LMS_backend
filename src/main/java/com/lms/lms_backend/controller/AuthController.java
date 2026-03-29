@@ -1,11 +1,10 @@
 package com.lms.lms_backend.controller;
 
-import com.lms.lms_backend.dto.LoginRequest;
-import com.lms.lms_backend.dto.LoginResponse;
-import com.lms.lms_backend.dto.RegisterRequest;
+import com.lms.lms_backend.dto.LoginRequestDTO;
+import com.lms.lms_backend.dto.LoginResponseDTO;
+import com.lms.lms_backend.dto.RegisterRequestDTO;
 import com.lms.lms_backend.entity.User;
 import com.lms.lms_backend.service.UserService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,12 +19,12 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public User register(@RequestBody RegisterRequest request) {
+    public User register(@RequestBody RegisterRequestDTO request) {
         return userService.register(request);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request) {
         return ResponseEntity.ok(userService.login(request));
     }
 
