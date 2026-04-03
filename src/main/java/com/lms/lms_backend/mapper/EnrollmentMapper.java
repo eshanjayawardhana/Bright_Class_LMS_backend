@@ -18,6 +18,7 @@ public interface EnrollmentMapper {
     @Mapping(target = "course", source = "course")
     @Mapping(target = "status", constant = "PENDING") // Initially always PENDING
     @Mapping(target = "enrollmentDate", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "fullName", source = "request.fullName")
     Enrollment toEntity(EnrollmentRequestDTO request, String studentEmail, User student, Course course);
 
     // 2. Entity -> ResponseDTO

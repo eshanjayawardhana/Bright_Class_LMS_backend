@@ -1,6 +1,7 @@
 package com.lms.lms_backend.controller;
 
 import com.lms.lms_backend.dto.CreateUserRequestDTO;
+import com.lms.lms_backend.dto.UserResponseDTO;
 import com.lms.lms_backend.entity.User;
 import com.lms.lms_backend.service.UserService;
 import jakarta.validation.Valid;
@@ -24,14 +25,12 @@ public class AdminController {
     }
 
     @PostMapping("/create-lecture")
-    public ResponseEntity<User> createLecture(@Valid @RequestBody CreateUserRequestDTO createUserRequestDTO){
-        User response = userService.createLecture(createUserRequestDTO);
-        return new ResponseEntity<>(response, HttpStatus.CREATED); // 201 Created status
+    public ResponseEntity<UserResponseDTO> createLecture(@Valid @RequestBody CreateUserRequestDTO request){
+        return new ResponseEntity<>(userService.createLecture(request), HttpStatus.CREATED);
     }
 
     @PostMapping("/create-admin")
-    public ResponseEntity<User> createAdmin(@Valid @RequestBody CreateUserRequestDTO createUserRequestDTO){
-        User response = userService.createAdmin(createUserRequestDTO);
-        return new ResponseEntity<>(response, HttpStatus.CREATED); // 201 Created status
+    public ResponseEntity<UserResponseDTO> createAdmin(@Valid @RequestBody CreateUserRequestDTO request){
+        return new ResponseEntity<>(userService.createAdmin(request), HttpStatus.CREATED);
     }
 }

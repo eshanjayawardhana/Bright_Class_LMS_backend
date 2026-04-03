@@ -8,12 +8,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RegisterRequestDTO {
 
-//    private Long id;
+    private String fullName;
     private String email;
     private String password;
-//    private Role role;
-//    private String status;
-//    private LocalDateTime createdAt;
 
 
     public String getEmail() {
@@ -32,10 +29,19 @@ public class RegisterRequestDTO {
         this.password = password;
     }
 
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
     @Override
     public String toString() {
-        return "RegisterRequest{" +
-                "email='" + email + '\'' +
+        return "RegisterRequestDTO{" +
+                "fullName='" + fullName + '\'' +
+                ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 '}';
     }

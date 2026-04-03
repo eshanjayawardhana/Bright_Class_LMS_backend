@@ -1,9 +1,6 @@
 package com.lms.lms_backend.service.impl;
 
-import com.lms.lms_backend.dto.CreateUserRequestDTO;
-import com.lms.lms_backend.dto.LoginRequestDTO;
-import com.lms.lms_backend.dto.LoginResponseDTO;
-import com.lms.lms_backend.dto.RegisterRequestDTO;
+import com.lms.lms_backend.dto.*;
 import com.lms.lms_backend.entity.User;
 import com.lms.lms_backend.entity.enums.Role;
 import com.lms.lms_backend.repository.UserRepository;
@@ -31,9 +28,14 @@ public class UserServiceImpl implements UserService {
 
     // Student
     @Override
-    public User register(RegisterRequestDTO request) {
+    public UserResponseDTO register(RegisterRequestDTO request) {
+
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RuntimeException("Email already exists");
+        }
 
         User user = User.builder()
+                .fullName(request.getFullName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.STUDENT)
@@ -41,19 +43,27 @@ public class UserServiceImpl implements UserService {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
 
+        // 🔥 Entity -> DTO
+        return UserResponseDTO.builder()
+                .id(savedUser.getId())
+                .fullName(savedUser.getFullName())
+                .email(savedUser.getEmail())
+                .role(savedUser.getRole().name())
+                .build();
     }
 
     // Lecture
     @Override
-    public User createLecture(CreateUserRequestDTO request) {
+    public UserResponseDTO createLecture(CreateUserRequestDTO request) {
 
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("Email already exists");
         }
 
         User user = User.builder()
+                .fullName(request.getFullName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.LECTURER)
@@ -61,14 +71,26 @@ public class UserServiceImpl implements UserService {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        return UserResponseDTO.builder()
+                .id(savedUser.getId())
+                .fullName(savedUser.getFullName())
+                .email(savedUser.getEmail())
+                .role(savedUser.getRole().name())
+                .build();
     }
 
     //Admin
     @Override
-    public User createAdmin(CreateUserRequestDTO request) {
+    public UserResponseDTO createAdmin(CreateUserRequestDTO request) {
+
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RuntimeException("Email already exists");
+        }
 
         User user = User.builder()
+                .fullName(request.getFullName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.ADMIN)
@@ -76,7 +98,14 @@ public class UserServiceImpl implements UserService {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        return UserResponseDTO.builder()
+                .id(savedUser.getId())
+                .fullName(savedUser.getFullName())
+                .email(savedUser.getEmail())
+                .role(savedUser.getRole().name())
+                .build();
     }
 
     @Override
@@ -90,10 +119,18 @@ public class UserServiceImpl implements UserService {
 
         String token = jwtUtil.generateToken(user.getEmail(),user.getRole().name());
 
-        return new LoginResponseDTO(
-                user.getEmail(),
-                "Login successful",
-                token
-        );
+//        return new LoginResponseDTO(
+//                user.getEmail(),
+//                "Login successful",
+//                token
+//        );
+
+        return LoginResponseDTO.builder()
+                .email(user.getEmail())
+                .message("Login successful")
+                .token(token)
+                .fullName(user.getFullName())
+                .role(user.getRole().name())
+                .build();
     }
 }
