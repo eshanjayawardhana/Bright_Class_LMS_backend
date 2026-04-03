@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/payments")
@@ -40,6 +41,17 @@ public class PaymentController {
     public ResponseEntity<PaymentResponseDTO> reject(@PathVariable Long id) {
         PaymentResponseDTO response = paymentService.rejectPayment(id);
         return ResponseEntity.ok(response);
+    }
+
+    // 🎓 STUDENT - Upload Slip
+    @PostMapping(value = "/upload", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<PaymentResponseDTO> uploadSlip(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("enrollmentId") Long enrollmentId) {
+
+        PaymentResponseDTO response = paymentService.uploadSlip(file, enrollmentId);
+        return new ResponseEntity<>(response, org.springframework.http.HttpStatus.CREATED);
     }
 }
 
