@@ -13,6 +13,7 @@ import com.lms.lms_backend.exception.ResourceNotFoundException;
 import com.lms.lms_backend.mapper.PaymentMapper;
 import com.lms.lms_backend.repository.EnrollmentRepository;
 import com.lms.lms_backend.repository.PaymentRepository;
+import com.lms.lms_backend.service.EmailService;
 import com.lms.lms_backend.service.PaymentService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -34,14 +35,16 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final EnrollmentRepository enrollmentRepository;
     private final PaymentMapper paymentMapper;
+    private final EmailService emailService;
 
-    public PaymentServiceImpl(PaymentRepository paymentRepository, EnrollmentRepository enrollmentRepository, PaymentMapper paymentMapper) {
+    public PaymentServiceImpl(PaymentRepository paymentRepository, EnrollmentRepository enrollmentRepository, PaymentMapper paymentMapper, EmailService emailService) {
         this.paymentRepository = paymentRepository;
         this.enrollmentRepository = enrollmentRepository;
         this.paymentMapper = paymentMapper;
+        this.emailService = emailService;
     }
 
-    // YAML එකෙන් path එක මෙතනට ගන්නවා
+    // YML path
     @Value("${file.upload-dir}")
     private String uploadDir;
 
@@ -67,10 +70,38 @@ public class PaymentServiceImpl implements PaymentService {
         enrollment.setStatus(EnrollmentStatus.APPROVED);
         enrollmentRepository.save(enrollment);
 
+        // HTML Email Template for APPROVAL
+        String approvalHtmlContent = "<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;\">" +
+                "<h2 style=\"color: #2e7d32; text-align: center;\">BrightClass LMS</h2>" +
+                "<div style=\"background-color: #f1f8e9; padding: 15px; border-radius: 5px; text-align: center;\">" +
+                "<h3 style=\"color: #1b5e20; margin: 0;\">Payment Verified & Enrollment Approved! 🎉</h3>" +
+                "</div>" +
+                "<p>Dear <strong>" + enrollment.getFullName() + "</strong>,</p>" +
+                "<p>We are thrilled to inform you that your payment for <strong>" + enrollment.getCourse().getTitle() + "</strong> has been successfully verified.</p>" +
+                "<p>Your enrollment is now fully approved, and you have complete access to all course materials, live sessions, and recorded videos.</p>" +
+                "<div style=\"background-color: #f9f9f9; padding: 15px; border-left: 4px solid #2e7d32; margin: 20px 0;\">" +
+                "<h4 style=\"margin-top: 0; color: #333;\">Login Instructions:</h4>" +
+                "<ul style=\"margin-bottom: 0; color: #555;\">" +
+                "<li><strong>Login Portal:</strong> <a href=\"http://localhost:4200/login\">Access LMS Here</a></li>" +
+                "<li><strong>Email ID:</strong> " + enrollment.getEmail() + "</li>" +
+                "<li><strong>Password:</strong> Use the password you created during registration.</li>" +
+                "</ul>" +
+                "</div>" +
+                "<p>If you encounter any issues logging in, please contact our support team immediately.</p>" +
+                "<p>Best Regards,<br><strong>BrightClass Administration Team</strong></p>" +
+                "</div>";
+
+        emailService.sendEmail(
+                enrollment.getEmail(),
+                "BrightClass LMS - Enrollment Approved! Welcome Aboard",
+                approvalHtmlContent
+        );
+
         return paymentMapper.toDto(payment);
     }
 
     @Override
+    @Transactional
     public PaymentResponseDTO rejectPayment(Long id) {
         Payment payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
@@ -83,6 +114,34 @@ public class PaymentServiceImpl implements PaymentService {
         Enrollment enrollment = payment.getEnrollment();
         enrollment.setStatus(EnrollmentStatus.REJECTED);
         enrollmentRepository.save(enrollment);
+
+        // HTML Email Template for REJECTION
+        String rejectionHtmlContent = "<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;\">" +
+                "<h2 style=\"color: #c62828; text-align: center;\">BrightClass LMS</h2>" +
+                "<div style=\"background-color: #ffebee; padding: 15px; border-radius: 5px; text-align: center;\">" +
+                "<h3 style=\"color: #b71c1c; margin: 0;\">Action Required: Payment Verification Failed ⚠️</h3>" +
+                "</div>" +
+                "<p>Dear <strong>" + enrollment.getFullName() + "</strong>,</p>" +
+                "<p>We regret to inform you that we could not verify the payment slip you uploaded for the course: <strong>" + enrollment.getCourse().getTitle() + "</strong>.</p>" +
+                "<p>As a result, your enrollment request is currently marked as <strong style=\"color: #c62828;\">REJECTED</strong>.</p>" +
+                "<div style=\"background-color: #f9f9f9; padding: 15px; border-left: 4px solid #c62828; margin: 20px 0;\">" +
+                "<h4 style=\"margin-top: 0; color: #333;\">Common Reasons for Rejection:</h4>" +
+                "<ul style=\"margin-bottom: 0; color: #555;\">" +
+                "<li>The uploaded image was blurry or unreadable.</li>" +
+                "<li>The payment amount did not match the course fee.</li>" +
+                "<li>The reference number was missing or invalid.</li>" +
+                "</ul>" +
+                "</div>" +
+                "<p><strong>What should you do next?</strong></p>" +
+                "<p>Please log in to your dashboard and upload a clear, valid payment slip again. If you believe this is a mistake, please reply to this email or contact our support hotline at 011-XXXXXXX.</p>" +
+                "<p>Best Regards,<br><strong>BrightClass Administration Team</strong></p>" +
+                "</div>";
+
+        emailService.sendEmail(
+                enrollment.getEmail(),
+                "BrightClass LMS - Action Required: Payment Verification Failed",
+                rejectionHtmlContent
+        );
 
         return paymentMapper.toDto(payment);
     }
