@@ -19,19 +19,25 @@ public class Course {
     private String year;      // e.g., Year 1
     private String semester;  // e.g., Semester 1
     private String category;  // optional (Degree / Skill)
-    private String lecturerEmail;
+//    private String lecturerEmail;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lecturer_id", nullable = false)
+    private User lecturer;
 
     public Course() {
     }
-    public Course(Long id, String title, String description, String year, String semester, String category, String lecturerEmail) {
+
+    public Course(Long id, String title, String description, String year, String semester, String category, User lecturer) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.year = year;
         this.semester = semester;
         this.category = category;
-        this.lecturerEmail = lecturerEmail;
+        this.lecturer = lecturer;
     }
+
     public Long getId() {
         return id;
     }
@@ -68,11 +74,13 @@ public class Course {
     public void setCategory(String category) {
         this.category = category;
     }
-    public String getLecturerEmail() {
-        return lecturerEmail;
+
+    public User getLecturer() {
+        return lecturer;
     }
-    public void setLecturerEmail(String lecturerEmail) {
-        this.lecturerEmail = lecturerEmail;
+
+    public void setLecturer(User lecturer) {
+        this.lecturer = lecturer;
     }
 
     @Override
@@ -84,7 +92,7 @@ public class Course {
                 ", year='" + year + '\'' +
                 ", semester='" + semester + '\'' +
                 ", category='" + category + '\'' +
-                ", lecturerEmail='" + lecturerEmail + '\'' +
+                ", lecturer=" + lecturer +
                 '}';
     }
 }

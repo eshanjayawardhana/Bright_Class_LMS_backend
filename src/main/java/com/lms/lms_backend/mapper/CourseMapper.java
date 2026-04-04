@@ -4,9 +4,13 @@ import com.lms.lms_backend.dto.CourseRequestDTO;
 import com.lms.lms_backend.dto.CourseResponseDTO;
 import com.lms.lms_backend.entity.Course;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface CourseMapper {
+    @Mapping(target = "lecturer", ignore = true)
     Course toEntity(CourseRequestDTO requestDTO);
+
+    @Mapping(target = "lecturerEmail", source = "lecturer.email")
     CourseResponseDTO toDto(Course course);
 }
