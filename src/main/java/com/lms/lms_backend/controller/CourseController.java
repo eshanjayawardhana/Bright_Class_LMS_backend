@@ -1,5 +1,6 @@
 package com.lms.lms_backend.controller;
 
+import com.lms.lms_backend.dto.ApiResponse;
 import com.lms.lms_backend.dto.CourseRequestDTO;
 import com.lms.lms_backend.dto.CourseResponseDTO;
 import com.lms.lms_backend.entity.Course;
@@ -24,34 +25,51 @@ public class CourseController {
     // 🔐 ADMIN ONLY
     @PostMapping("/add")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<CourseResponseDTO> createCourse(@RequestBody CourseRequestDTO courseRequestDTO) {
+    public ResponseEntity<ApiResponse<CourseResponseDTO>> createCourse(@RequestBody CourseRequestDTO courseRequestDTO) {
         CourseResponseDTO response = courseService.createCourse(courseRequestDTO);
-        return new ResponseEntity<>(response, HttpStatus.CREATED); // 201 Created status
+
+        return new ResponseEntity<>(
+                ApiResponse.success("Course created successfully", response, HttpStatus.CREATED.value()), // 201
+                HttpStatus.CREATED
+        );
     }
 
     // 🔐 ADMIN ONLY
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<CourseResponseDTO> updateCourse(@PathVariable Long id, @RequestBody CourseRequestDTO request) {
-        return ResponseEntity.ok(courseService.updateCourse(id, request));
+    public ResponseEntity<ApiResponse<CourseResponseDTO>> updateCourse(@PathVariable Long id, @RequestBody CourseRequestDTO request) {
+
+        CourseResponseDTO response = courseService.updateCourse(id, request);
+
+        return ResponseEntity.ok(
+                ApiResponse.success("Course updated successfully", response, 200)
+        );
     }
 
     // 🔐 ADMIN ONLY
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteCourse(@PathVariable Long id) {
+
         courseService.deleteCourse(id);
         return ResponseEntity.ok("Course deleted successfully!");
+
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<CourseResponseDTO>> getAllCourses() {
-        return ResponseEntity.ok(courseService.getAllCourses()); // 200 OK status
+    public ResponseEntity<ApiResponse<List<CourseResponseDTO>>> getAllCourses() {
+
+        return ResponseEntity.ok(
+                ApiResponse.success("Successfully loaded all courses", courseService.getAllCourses(), 200)
+        );
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CourseResponseDTO> getCourse(@PathVariable Long id){
-        return ResponseEntity.ok(courseService.getCourseById(id));
+    public ResponseEntity<ApiResponse<CourseResponseDTO>> getCourse(@PathVariable Long id){
+
+        return ResponseEntity.ok(
+                ApiResponse.success("Successfully loaded course", courseService.getCourseById(id), 200)
+        );
     }
 
 }

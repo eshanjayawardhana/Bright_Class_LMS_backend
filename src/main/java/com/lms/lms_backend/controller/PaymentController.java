@@ -1,5 +1,6 @@
 package com.lms.lms_backend.controller;
 
+import com.lms.lms_backend.dto.ApiResponse;
 import com.lms.lms_backend.dto.PaymentRequestDTO;
 import com.lms.lms_backend.dto.PaymentResponseDTO;
 import com.lms.lms_backend.service.PaymentService;
@@ -22,36 +23,49 @@ public class PaymentController {
     // 🎓 STUDENT
     @PostMapping
     @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<PaymentResponseDTO> create(@RequestBody PaymentRequestDTO request) {
+    public ResponseEntity<ApiResponse<PaymentResponseDTO>> create(@RequestBody PaymentRequestDTO request) {
         PaymentResponseDTO response = paymentService.createPayment(request);
-        return new ResponseEntity<>(response, HttpStatus.CREATED); // 201 Created
+
+        return new ResponseEntity<>(
+                ApiResponse.success("Payment request created successfully", response, HttpStatus.CREATED.value()), // 201
+                HttpStatus.CREATED
+        );
     }
 
     // 👨‍💼 ADMIN
     @PutMapping("/{id}/verify")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<PaymentResponseDTO> verify(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<PaymentResponseDTO>> verify(@PathVariable Long id) {
         PaymentResponseDTO response = paymentService.verifyPayment(id);
-        return ResponseEntity.ok(response); // 200 OK
+
+        return ResponseEntity.ok(
+                ApiResponse.success("Payment verified successfully", response, 200)
+        );
+
     }
 
     // 👨‍💼 ADMIN
     @PutMapping("/{id}/reject")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<PaymentResponseDTO> reject(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<PaymentResponseDTO>> reject(@PathVariable Long id) {
         PaymentResponseDTO response = paymentService.rejectPayment(id);
-        return ResponseEntity.ok(response);
-    }
+        return ResponseEntity.ok(
+                ApiResponse.success("Payment reject successfully", response, 200)
+        );    }
 
     // 🎓 STUDENT - Upload Slip
     @PostMapping(value = "/upload", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<PaymentResponseDTO> uploadSlip(
+    public ResponseEntity<ApiResponse<PaymentResponseDTO>> uploadSlip(
             @RequestParam("file") MultipartFile file,
             @RequestParam("enrollmentId") Long enrollmentId) {
 
         PaymentResponseDTO response = paymentService.uploadSlip(file, enrollmentId);
-        return new ResponseEntity<>(response, org.springframework.http.HttpStatus.CREATED);
+
+        return new ResponseEntity<>(
+                ApiResponse.success("Slip uploaded successfully", response, HttpStatus.CREATED.value()), // 201
+                HttpStatus.CREATED
+        );
     }
 }
 

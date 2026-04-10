@@ -1,5 +1,6 @@
 package com.lms.lms_backend.controller;
 
+import com.lms.lms_backend.dto.ApiResponse;
 import com.lms.lms_backend.dto.CourseContentRequestDTO;
 import com.lms.lms_backend.dto.CourseContentResponseDTO;
 import com.lms.lms_backend.service.CourseContentService;
@@ -24,22 +25,28 @@ public class CourseContentController {
     // 👨‍🏫 LECTURER
     @PostMapping
     @PreAuthorize("hasRole('LECTURER')")
-    public ResponseEntity<CourseContentResponseDTO> create(
+    public ResponseEntity<ApiResponse<CourseContentResponseDTO>> create(
             @RequestBody CourseContentRequestDTO request,
             Authentication auth) {
 
         CourseContentResponseDTO response = courseContentService.createContent(request, auth.getName());
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+
+        return new ResponseEntity<>(
+                ApiResponse.success("Course content created successfully", response, HttpStatus.CREATED.value()), // 201
+                HttpStatus.CREATED
+        );
     }
 
     // 🎓 STUDENT
     @GetMapping("/{courseId}")
     @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<List<CourseContentResponseDTO>> getContent(
+    public ResponseEntity<ApiResponse<List<CourseContentResponseDTO>>> getContent(
             @PathVariable Long courseId,
             Authentication auth) {
 
         List<CourseContentResponseDTO> response = courseContentService.getCourseContent(courseId, auth.getName());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(
+                ApiResponse.success("Content loaded successfully", response, 200)
+        );
     }
 }

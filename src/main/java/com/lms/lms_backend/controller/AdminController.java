@@ -1,5 +1,6 @@
 package com.lms.lms_backend.controller;
 
+import com.lms.lms_backend.dto.ApiResponse;
 import com.lms.lms_backend.dto.CreateUserRequestDTO;
 import com.lms.lms_backend.dto.UserResponseDTO;
 import com.lms.lms_backend.entity.User;
@@ -25,12 +26,22 @@ public class AdminController {
     }
 
     @PostMapping("/create-lecture")
-    public ResponseEntity<UserResponseDTO> createLecture(@Valid @RequestBody CreateUserRequestDTO request){
-        return new ResponseEntity<>(userService.createLecture(request), HttpStatus.CREATED);
+    public ResponseEntity<ApiResponse<UserResponseDTO>> createLecture(@Valid @RequestBody CreateUserRequestDTO request){
+
+        UserResponseDTO userResponseDTO = userService.createLecture(request);
+        return new ResponseEntity<>(
+                ApiResponse.success("Lecture registered successfully", userResponseDTO, HttpStatus.CREATED.value()), // 201
+                HttpStatus.CREATED
+        );
     }
 
     @PostMapping("/create-admin")
-    public ResponseEntity<UserResponseDTO> createAdmin(@Valid @RequestBody CreateUserRequestDTO request){
-        return new ResponseEntity<>(userService.createAdmin(request), HttpStatus.CREATED);
+    public ResponseEntity<ApiResponse<UserResponseDTO>> createAdmin(@Valid @RequestBody CreateUserRequestDTO request){
+
+        UserResponseDTO userResponseDTO = userService.createAdmin(request);
+        return new ResponseEntity<>(
+                ApiResponse.success("Admin created successfully", userResponseDTO, HttpStatus.CREATED.value()), // 201
+                HttpStatus.CREATED
+        );
     }
 }

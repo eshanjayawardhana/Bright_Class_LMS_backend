@@ -1,9 +1,6 @@
 package com.lms.lms_backend.controller;
 
-import com.lms.lms_backend.dto.LoginRequestDTO;
-import com.lms.lms_backend.dto.LoginResponseDTO;
-import com.lms.lms_backend.dto.RegisterRequestDTO;
-import com.lms.lms_backend.dto.UserResponseDTO;
+import com.lms.lms_backend.dto.*;
 import com.lms.lms_backend.entity.RefreshToken;
 import com.lms.lms_backend.repository.RefreshTokenRepository;
 import com.lms.lms_backend.security.JwtUtil;
@@ -38,17 +35,19 @@ public class AuthController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponseDTO> register(@RequestBody RegisterRequestDTO request) {
-        return new ResponseEntity<>(userService.register(request), HttpStatus.CREATED);
+    public ResponseEntity<ApiResponse<UserResponseDTO>> register(@RequestBody RegisterRequestDTO request) {
+
+        UserResponseDTO userResponse = userService.register(request);
+
+        return new ResponseEntity<>(
+                ApiResponse.success("Student registered successfully", userResponse, HttpStatus.CREATED.value()), // 201
+                HttpStatus.CREATED
+        );
     }
 
-//    @PostMapping("/login")
-//    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request) {
-//        return ResponseEntity.ok(userService.login(request));
-//    }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request, HttpServletResponse response) {
+    public ResponseEntity<ApiResponse<LoginResponseDTO>> login(@RequestBody LoginRequestDTO request, HttpServletResponse response) {
 
         LoginResponseDTO loginResponse = userService.login(request);
 
@@ -68,7 +67,10 @@ public class AuthController {
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         // only send Access Token to frontend (Refresh Token is put in Cookie)
-        return ResponseEntity.ok(loginResponse);
+        return ResponseEntity.ok(
+                ApiResponse.success("Login successful", loginResponse, 200)
+        );
+
     }
 
     @PostMapping("/refresh")
@@ -145,6 +147,7 @@ public class AuthController {
         response.addHeader(HttpHeaders.SET_COOKIE, cleanCookie.toString());
 
         return ResponseEntity.ok("Successfully logged out!");
+
     }
 
 
