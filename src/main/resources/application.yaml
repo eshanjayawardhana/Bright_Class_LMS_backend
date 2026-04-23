@@ -1,0 +1,54 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/lms_db
+    username: postgres
+    password: 1234
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5MB
+      max-request-size: 5MB
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: gemceylora@gmail.com
+    password: dpjk crby zoln wlhm
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+
+app:
+  admin:
+    default:
+      email: admin@gmail.com
+      password: admin123
+  cors:
+    allowed-origins: http://localhost:4200
+
+file:
+  upload-dir: "uploads/payments"
+
+jwt:
+  expiration: 900000        # Access Token time (15 min = 15 * 60 * 1000)
+  refresh:
+    expiration: 604800000   # Refresh Token time(7 days = 7 * 24 * 60 * 60 * 1000)
