@@ -57,10 +57,12 @@ public class CourseController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<ApiResponse<List<CourseResponseDTO>>> getAllCourses() {
+    public ResponseEntity<ApiResponse<List<CourseResponseDTO>>> getAllCourses(
+            @RequestParam(value = "search", required = false) String search
+    ) {
 
         return ResponseEntity.ok(
-                ApiResponse.success("Successfully loaded all courses", courseService.getAllCourses(), 200)
+                ApiResponse.success("Successfully loaded all courses", courseService.getAllCourses(search), 200)
         );
     }
 

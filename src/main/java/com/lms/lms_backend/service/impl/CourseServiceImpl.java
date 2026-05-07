@@ -31,6 +31,7 @@ public class CourseServiceImpl implements CourseService {
         // DTO -> Entity (using Builder pattern)
         Course course = Course.builder()
                 .title(request.getTitle())
+                .code(request.getCode())
                 .description(request.getDescription())
                 .year(request.getYear())
                 .semester(request.getSemester())
@@ -43,9 +44,16 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<CourseResponseDTO> getAllCourses() {
-        return courseRepository.findAll()
-                .stream()
+    public List<CourseResponseDTO> getAllCourses(String search) {
+        List<Course> courses;
+
+        if (search != null && !search.trim().isEmpty()) {
+            courses = courseRepository.searchCourses(search);
+        } else {
+            courses = courseRepository.findAll();
+        }
+
+        return courses.stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
     }
@@ -68,6 +76,7 @@ public class CourseServiceImpl implements CourseService {
                 .orElseThrow(() -> new ResourceNotFoundException("Lecturer not found with email: " + request.getLecturerEmail()));
 
         existingCourse.setTitle(request.getTitle());
+        existingCourse.setCode(request.getCode());
         existingCourse.setDescription(request.getDescription());
         existingCourse.setYear(request.getYear());
         existingCourse.setSemester(request.getSemester());
@@ -92,11 +101,13 @@ public class CourseServiceImpl implements CourseService {
         return CourseResponseDTO.builder()
                 .id(course.getId())
                 .title(course.getTitle())
+                .code(course.getCode())
                 .description(course.getDescription())
                 .year(course.getYear())
                 .semester(course.getSemester())
                 .category(course.getCategory())
                 .lecturerEmail(course.getLecturer() != null ? course.getLecturer().getEmail() : null)
+                .createdAt(course.getCreatedAt())
                 .build();
     }
 }

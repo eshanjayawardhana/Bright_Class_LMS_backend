@@ -2,6 +2,8 @@ package com.lms.lms_backend.dto;
 
 import lombok.Builder;
 
+import java.time.LocalDateTime;
+
 @Builder
 public class CourseResponseDTO {
     private Long id;
@@ -11,11 +13,13 @@ public class CourseResponseDTO {
     private String semester;
     private String category;
     private String lecturerEmail;
+    private LocalDateTime createdAt;
+    private String code;
 
     public CourseResponseDTO() {
     }
 
-    public CourseResponseDTO(Long id, String title, String description, String year, String semester, String category, String lecturerEmail) {
+    public CourseResponseDTO(Long id, String title, String description, String year, String semester, String category, String lecturerEmail, LocalDateTime createdAt, String code) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -23,6 +27,8 @@ public class CourseResponseDTO {
         this.semester = semester;
         this.category = category;
         this.lecturerEmail = lecturerEmail;
+        this.createdAt = createdAt;
+        this.code = code;
     }
 
     public Long getId() {
@@ -79,5 +85,21 @@ public class CourseResponseDTO {
 
     public void setLecturerEmail(String lecturerEmail) {
         this.lecturerEmail = lecturerEmail;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 }

@@ -3,6 +3,8 @@ package com.lms.lms_backend.entity;
 import jakarta.persistence.*;
 import lombok.Builder;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "courses")
 @Builder
@@ -25,10 +27,21 @@ public class Course {
     @JoinColumn(name = "lecturer_id", nullable = false)
     private User lecturer;
 
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(nullable = false, unique = true)
+    private String code;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
+
     public Course() {
     }
 
-    public Course(Long id, String title, String description, String year, String semester, String category, User lecturer) {
+    public Course(Long id, String title, String description, String year, String semester, String category, User lecturer, LocalDateTime createdAt, String code) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -36,6 +49,8 @@ public class Course {
         this.semester = semester;
         this.category = category;
         this.lecturer = lecturer;
+        this.createdAt = createdAt;
+        this.code = code;
     }
 
     public Long getId() {
@@ -83,6 +98,22 @@ public class Course {
         this.lecturer = lecturer;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
     @Override
     public String toString() {
         return "Course{" +
@@ -93,6 +124,8 @@ public class Course {
                 ", semester='" + semester + '\'' +
                 ", category='" + category + '\'' +
                 ", lecturer=" + lecturer +
+                ", createdAt=" + createdAt +
+                ", code='" + code + '\'' +
                 '}';
     }
 }

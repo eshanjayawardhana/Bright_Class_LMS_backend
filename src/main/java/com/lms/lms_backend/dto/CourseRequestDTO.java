@@ -8,17 +8,19 @@ public class CourseRequestDTO {
     private String semester;
     private String category;
     private String lecturerEmail;
+    private String code;
 
     public CourseRequestDTO() {
     }
 
-    public CourseRequestDTO(String title, String description, String year, String semester, String category, String lecturerEmail) {
+    public CourseRequestDTO(String title, String description, String year, String semester, String category, String lecturerEmail, String code) {
         this.title = title;
         this.description = description;
         this.year = year;
         this.semester = semester;
         this.category = category;
         this.lecturerEmail = lecturerEmail;
+        this.code = code;
     }
 
     public String getTitle() {
@@ -67,5 +69,13 @@ public class CourseRequestDTO {
 
     public void setLecturerEmail(String lecturerEmail) {
         this.lecturerEmail = lecturerEmail;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 }

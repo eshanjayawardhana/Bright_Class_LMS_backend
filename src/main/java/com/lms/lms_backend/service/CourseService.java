@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface CourseService {
     CourseResponseDTO createCourse(CourseRequestDTO request);
-    List<CourseResponseDTO> getAllCourses();
+    List<CourseResponseDTO> getAllCourses(String search);
     CourseResponseDTO getCourseById(Long id);
     CourseResponseDTO updateCourse(Long id, CourseRequestDTO request);
     void deleteCourse(Long id);
