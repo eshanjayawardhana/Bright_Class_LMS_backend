@@ -93,4 +93,15 @@ public class EnrollmentController {
                 ApiResponse.success("All Enrollments", response, 200)
         );
     }
+
+    // 👨‍💼 ADMIN
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<EnrollmentResponseDTO>> getEnrollment(@PathVariable Long id) {
+        EnrollmentResponseDTO response = enrollmentService.getEnrollmentById(id);
+
+        return ResponseEntity.ok(
+                ApiResponse.success("Successfully loaded enrollment details", response, 200)
+        );
+    }
 }

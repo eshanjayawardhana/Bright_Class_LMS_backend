@@ -156,4 +156,12 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .map(enrollmentMapper::toDto)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public EnrollmentResponseDTO getEnrollmentById(Long id) {
+        Enrollment enrollment = enrollmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Enrollment not found with id: " + id));
+
+        return enrollmentMapper.toDto(enrollment);
+    }
 }

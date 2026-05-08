@@ -13,5 +13,6 @@ public interface EnrollmentService {
     EnrollmentResponseDTO approve(Long id);
     EnrollmentResponseDTO reject(Long id, String reason);
     List<EnrollmentResponseDTO> getAllEnrollments(String search, EnrollmentStatus status);
+    EnrollmentResponseDTO getEnrollmentById(Long id);
 
 }
