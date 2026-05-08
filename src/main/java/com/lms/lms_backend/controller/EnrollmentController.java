@@ -72,8 +72,10 @@ public class EnrollmentController {
     // 👨‍💼 ADMIN
     @PutMapping("/{id}/reject")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<EnrollmentResponseDTO>> reject(@PathVariable Long id) {
-        EnrollmentResponseDTO response = enrollmentService.reject(id);
+    public ResponseEntity<ApiResponse<EnrollmentResponseDTO>> reject(@PathVariable Long id, @RequestBody(required = false) java.util.Map<String, String> request) {
+
+        String reason = (request != null) ? request.get("reason") : null;
+        EnrollmentResponseDTO response = enrollmentService.reject(id, reason);
         return new ResponseEntity<>(
                 ApiResponse.success("Enrollment reject successfully", response, HttpStatus.CREATED.value()), // 201
                 HttpStatus.CREATED

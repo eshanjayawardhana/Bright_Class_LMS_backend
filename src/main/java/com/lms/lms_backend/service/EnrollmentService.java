@@ -11,7 +11,7 @@ public interface EnrollmentService {
     List<EnrollmentResponseDTO> getMyEnrollments(String studentEmail);
     List<EnrollmentResponseDTO> getPendingEnrollments();
     EnrollmentResponseDTO approve(Long id);
-    EnrollmentResponseDTO reject(Long id);
+    EnrollmentResponseDTO reject(Long id, String reason);
     List<EnrollmentResponseDTO> getAllEnrollments(String search, EnrollmentStatus status);
 
 }

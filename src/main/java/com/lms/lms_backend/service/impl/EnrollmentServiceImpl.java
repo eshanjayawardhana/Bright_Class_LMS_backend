@@ -105,12 +105,17 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
     @Override
     @Transactional
-    public EnrollmentResponseDTO reject(Long id) {
+    public EnrollmentResponseDTO reject(Long id, String reason) {
         Enrollment enrollment = enrollmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Enrollment not found"));
 
         enrollment.setStatus(EnrollmentStatus.REJECTED);
         Enrollment updatedEnrollment = enrollmentRepository.save(enrollment);
+
+        // Logic for default reason if the provided reason is null or empty
+        String finalReason = (reason == null || reason.trim().isEmpty())
+                ? "Your application did not meet the necessary requirements or contained incorrect information at this time."
+                : reason;
 
         // 📧 Enrollment Rejection HTML Template
         String enrollmentRejectionHtml = "<div style=\"font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 12px; background-color: #ffffff;\">" +
@@ -123,9 +128,13 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 "<p style=\"font-size: 16px; color: #3c4043;\">Dear <strong>" + enrollment.getFullName() + "</strong>,</p>" +
                 "<p style=\"font-size: 15px; color: #5f6368; line-height: 1.6;\">Thank you for your interest in the course <strong>" + enrollment.getCourse().getTitle() + "</strong>.</p>" +
                 "<p style=\"font-size: 15px; color: #5f6368; line-height: 1.6;\">After careful review, we regret to inform you that your enrollment request has been <span style=\"color: #d93025; font-weight: bold;\">REJECTED</span> at this time.</p>" +
+
+                // --- DYNAMIC REASON SECTION ---
                 "<div style=\"background-color: #f8f9fa; padding: 15px; border-left: 4px solid #d93025; margin: 20px 0;\">" +
-                "<p style=\"margin: 0; color: #5f6368;\">If you believe this happened due to incorrect information (NIC, Phone Number, etc.), you may resubmit your application with accurate details.</p>" +
+                "<p style=\"margin: 0; color: #202124; font-weight: bold;\">Reason for Rejection:</p>" +
+                "<p style=\"margin: 5px 0 0 0; color: #5f6368;\">" + finalReason + "</p>" +
                 "</div>" +
+
                 "<p style=\"font-size: 14px; color: #5f6368;\">For further clarification regarding this decision, please contact the administration office.</p>" +
                 "<hr style=\"border: 0; border-top: 1px solid #eee; margin: 20px 0;\">" +
                 "<p style=\"font-size: 13px; color: #9aa0a6; text-align: center;\">Best Regards,<br><strong>BrightClass Administration</strong></p>" +
