@@ -5,7 +5,7 @@ import com.lms.lms_backend.entity.enums.PaymentMethod;
 public class PaymentRequestDTO {
     private Long enrollmentId;
     private Double amount;
-    private PaymentMethod paymentMethod; // SLIP හෝ ONLINE
+    private PaymentMethod paymentMethod; // SLIP or ONLINE
 
 
     public PaymentRequestDTO() {

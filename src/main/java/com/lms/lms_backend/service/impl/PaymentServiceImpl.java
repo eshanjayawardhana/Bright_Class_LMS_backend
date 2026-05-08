@@ -27,7 +27,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
@@ -102,7 +104,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
-    public PaymentResponseDTO rejectPayment(Long id) {
+    public PaymentResponseDTO rejectPayment(Long id, String reason) {
         Payment payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
 
@@ -115,6 +117,10 @@ public class PaymentServiceImpl implements PaymentService {
         enrollment.setStatus(EnrollmentStatus.REJECTED);
         enrollmentRepository.save(enrollment);
 
+        String finalReason = (reason == null || reason.trim().isEmpty())
+                ? "The uploaded image was blurry, amount did not match, or reference number was invalid."
+                : reason;
+
         // HTML Email Template for REJECTION
         String rejectionHtmlContent = "<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;\">" +
                 "<h2 style=\"color: #c62828; text-align: center;\">BrightClass LMS</h2>" +
@@ -124,14 +130,20 @@ public class PaymentServiceImpl implements PaymentService {
                 "<p>Dear <strong>" + enrollment.getFullName() + "</strong>,</p>" +
                 "<p>We regret to inform you that we could not verify the payment slip you uploaded for the course: <strong>" + enrollment.getCourse().getTitle() + "</strong>.</p>" +
                 "<p>As a result, your enrollment request is currently marked as <strong style=\"color: #c62828;\">REJECTED</strong>.</p>" +
+
+//                "<div style=\"background-color: #f9f9f9; padding: 15px; border-left: 4px solid #c62828; margin: 20px 0;\">" +
+//                "<h4 style=\"margin-top: 0; color: #333;\">Common Reasons for Rejection:</h4>" +
+//                "<ul style=\"margin-bottom: 0; color: #555;\">" +
+//                "<li>The uploaded image was blurry or unreadable.</li>" +
+//                "<li>The payment amount did not match the course fee.</li>" +
+//                "<li>The reference number was missing or invalid.</li>" +
+//                "</ul>" +
+//                "</div>" +
                 "<div style=\"background-color: #f9f9f9; padding: 15px; border-left: 4px solid #c62828; margin: 20px 0;\">" +
-                "<h4 style=\"margin-top: 0; color: #333;\">Common Reasons for Rejection:</h4>" +
-                "<ul style=\"margin-bottom: 0; color: #555;\">" +
-                "<li>The uploaded image was blurry or unreadable.</li>" +
-                "<li>The payment amount did not match the course fee.</li>" +
-                "<li>The reference number was missing or invalid.</li>" +
-                "</ul>" +
+                "<h4 style=\"margin-top: 0; color: #333;\">Reason for Rejection:</h4>" +
+                "<p style=\"margin-bottom: 0; color: #555;\">" + finalReason + "</p>" +
                 "</div>" +
+
                 "<p><strong>What should you do next?</strong></p>" +
                 "<p>Please log in to your dashboard and upload a clear, valid payment slip again. If you believe this is a mistake, please reply to this email or contact our support hotline at 011-XXXXXXX.</p>" +
                 "<p>Best Regards,<br><strong>BrightClass Administration Team</strong></p>" +
@@ -204,6 +216,21 @@ public class PaymentServiceImpl implements PaymentService {
         } catch (IOException ex) {
             throw new FileStorageException("Could not store file " + file.getOriginalFilename() + ". Please try again!", ex);
         }
+    }
+
+    @Override
+    public List<PaymentResponseDTO> getAllPayments(String search, PaymentStatus status) {
+        return paymentRepository.searchPayments(search, status)
+                .stream()
+                .map(paymentMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public PaymentResponseDTO getPaymentById(Long id) {
+        Payment payment = paymentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
+        return paymentMapper.toDto(payment);
     }
 }
 

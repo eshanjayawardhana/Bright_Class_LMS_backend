@@ -10,6 +10,11 @@ import java.time.LocalDateTime;
 public class PaymentResponseDTO {
     private Long id;
     private Long enrollmentId;
+
+    private String studentName;
+    private String studentEmail;
+    private String courseTitle;
+
     private Double amount;
     private PaymentMethod paymentMethod;
     private PaymentStatus status;
@@ -19,9 +24,12 @@ public class PaymentResponseDTO {
     public PaymentResponseDTO() {
     }
 
-    public PaymentResponseDTO(Long id, Long enrollmentId, Double amount, PaymentMethod paymentMethod, PaymentStatus status, LocalDateTime paymentDate, String slipUrl) {
+    public PaymentResponseDTO(Long id, Long enrollmentId, String studentName, String studentEmail, String courseTitle,Double amount, PaymentMethod paymentMethod, PaymentStatus status, LocalDateTime paymentDate, String slipUrl) {
         this.id = id;
         this.enrollmentId = enrollmentId;
+        this.studentName = studentName;
+        this.studentEmail = studentEmail;
+        this.courseTitle = courseTitle;
         this.amount = amount;
         this.paymentMethod = paymentMethod;
         this.status = status;
@@ -83,5 +91,29 @@ public class PaymentResponseDTO {
 
     public void setSlipUrl(String slipUrl) {
         this.slipUrl = slipUrl;
+    }
+
+    public String getStudentName() {
+        return studentName;
+    }
+
+    public void setStudentName(String studentName) {
+        this.studentName = studentName;
+    }
+
+    public String getStudentEmail() {
+        return studentEmail;
+    }
+
+    public void setStudentEmail(String studentEmail) {
+        this.studentEmail = studentEmail;
+    }
+
+    public String getCourseTitle() {
+        return courseTitle;
+    }
+
+    public void setCourseTitle(String courseTitle) {
+        this.courseTitle = courseTitle;
     }
 }

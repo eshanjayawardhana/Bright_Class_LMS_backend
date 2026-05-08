@@ -3,12 +3,15 @@ package com.lms.lms_backend.controller;
 import com.lms.lms_backend.dto.ApiResponse;
 import com.lms.lms_backend.dto.PaymentRequestDTO;
 import com.lms.lms_backend.dto.PaymentResponseDTO;
+import com.lms.lms_backend.entity.enums.PaymentStatus;
 import com.lms.lms_backend.service.PaymentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/payments")
@@ -47,8 +50,9 @@ public class PaymentController {
     // 👨‍💼 ADMIN
     @PutMapping("/{id}/reject")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<PaymentResponseDTO>> reject(@PathVariable Long id) {
-        PaymentResponseDTO response = paymentService.rejectPayment(id);
+    public ResponseEntity<ApiResponse<PaymentResponseDTO>> reject(@PathVariable Long id, @RequestBody(required = false) java.util.Map<String, String> request) {
+        String reason = (request != null) ? request.get("reason") : null;
+        PaymentResponseDTO response = paymentService.rejectPayment(id, reason);
         return ResponseEntity.ok(
                 ApiResponse.success("Payment reject successfully", response, 200)
         );    }
@@ -65,6 +69,28 @@ public class PaymentController {
         return new ResponseEntity<>(
                 ApiResponse.success("Slip uploaded successfully", response, HttpStatus.CREATED.value()), // 201
                 HttpStatus.CREATED
+        );
+    }
+
+    // 👨‍💼 ADMIN
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<List<PaymentResponseDTO>>> getAll(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) PaymentStatus status) {
+        List<PaymentResponseDTO> response = paymentService.getAllPayments(search, status);
+        return ResponseEntity.ok(
+                ApiResponse.success("All Payments", response, 200)
+        );
+    }
+
+    // 👨‍💼 ADMIN
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<PaymentResponseDTO>> getById(@PathVariable Long id) {
+        PaymentResponseDTO response = paymentService.getPaymentById(id);
+        return ResponseEntity.ok(
+                ApiResponse.success("Payment details retrieved", response, 200)
         );
     }
 }

@@ -15,9 +15,13 @@ public interface PaymentMapper {
     @Mapping(target = "status", constant = "PENDING")
     @Mapping(target = "paymentDate", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "enrollment", source = "enrollment")
+    @Mapping(target = "slipUrl", ignore = true)
     Payment toEntity(PaymentRequestDTO request, Enrollment enrollment);
 
     // Entity -> ResponseDTO
     @Mapping(target = "enrollmentId", source = "enrollment.id")
+    @Mapping(target = "studentName", source = "enrollment.fullName")
+    @Mapping(target = "studentEmail", source = "enrollment.email")
+    @Mapping(target = "courseTitle", source = "enrollment.course.title")
     PaymentResponseDTO toDto(Payment payment);
 }
