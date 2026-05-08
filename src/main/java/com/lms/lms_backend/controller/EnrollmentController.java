@@ -3,6 +3,7 @@ package com.lms.lms_backend.controller;
 import com.lms.lms_backend.dto.ApiResponse;
 import com.lms.lms_backend.dto.EnrollmentRequestDTO;
 import com.lms.lms_backend.dto.EnrollmentResponseDTO;
+import com.lms.lms_backend.entity.enums.EnrollmentStatus;
 import com.lms.lms_backend.service.EnrollmentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -76,6 +77,18 @@ public class EnrollmentController {
         return new ResponseEntity<>(
                 ApiResponse.success("Enrollment reject successfully", response, HttpStatus.CREATED.value()), // 201
                 HttpStatus.CREATED
+        );
+    }
+
+    // 👨‍💼 ADMIN
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<List<EnrollmentResponseDTO>>> getAll(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) EnrollmentStatus status) {
+        List<EnrollmentResponseDTO> response = enrollmentService.getAllEnrollments(search, status);
+        return ResponseEntity.ok(
+                ApiResponse.success("All Enrollments", response, 200)
         );
     }
 }

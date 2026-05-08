@@ -118,7 +118,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 "<h1 style=\"color: #d93025; margin: 0;\">BrightClass LMS</h1>" +
                 "</div>" +
                 "<div style=\"background-color: #fce8e6; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px;\">" +
-                "<h2 style=\"color: #c5221f; margin: 0;\">Enrollment Status Update</h2>" +
+                "<h2 style=\"color: #c5221f; margin: 0;\">Enrollment REJECTED</h2>" +
                 "</div>" +
                 "<p style=\"font-size: 16px; color: #3c4043;\">Dear <strong>" + enrollment.getFullName() + "</strong>,</p>" +
                 "<p style=\"font-size: 15px; color: #5f6368; line-height: 1.6;\">Thank you for your interest in the course <strong>" + enrollment.getCourse().getTitle() + "</strong>.</p>" +
@@ -138,5 +138,13 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         );
 
         return enrollmentMapper.toDto(updatedEnrollment);
+    }
+
+    @Override
+    public List<EnrollmentResponseDTO> getAllEnrollments(String search, EnrollmentStatus status) {
+        return enrollmentRepository.searchEnrollments(search, status)
+                .stream()
+                .map(enrollmentMapper::toDto)
+                .collect(Collectors.toList());
     }
 }
