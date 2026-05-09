@@ -9,10 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -42,6 +39,24 @@ public class AdminController {
         return new ResponseEntity<>(
                 ApiResponse.success("Admin created successfully", userResponseDTO, HttpStatus.CREATED.value()), // 201
                 HttpStatus.CREATED
+        );
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<ApiResponse<java.util.List<UserResponseDTO>>> getAllUsers(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String role,
+            @RequestParam(required = false) String status) {
+
+        return ResponseEntity.ok(
+                ApiResponse.success("Successfully fetched users", userService.getAllUsers(search, role, status), 200)
+        );
+    }
+
+    @GetMapping("/users/{id}")
+    public ResponseEntity<ApiResponse<UserResponseDTO>> getUserById(@PathVariable Long id) {
+        return ResponseEntity.ok(
+                ApiResponse.success("Successfully fetched user", userService.getUserById(id), 200)
         );
     }
 }

@@ -9,6 +9,8 @@ import com.lms.lms_backend.service.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 //@RequiredArgsConstructor
@@ -51,6 +53,8 @@ public class UserServiceImpl implements UserService {
                 .fullName(savedUser.getFullName())
                 .email(savedUser.getEmail())
                 .role(savedUser.getRole().name())
+                .status(user.getStatus())
+                .createdAt(user.getCreatedAt())
                 .build();
     }
 
@@ -78,6 +82,8 @@ public class UserServiceImpl implements UserService {
                 .fullName(savedUser.getFullName())
                 .email(savedUser.getEmail())
                 .role(savedUser.getRole().name())
+                .status(user.getStatus())
+                .createdAt(user.getCreatedAt())
                 .build();
     }
 
@@ -105,6 +111,8 @@ public class UserServiceImpl implements UserService {
                 .fullName(savedUser.getFullName())
                 .email(savedUser.getEmail())
                 .role(savedUser.getRole().name())
+                .status(user.getStatus())
+                .createdAt(user.getCreatedAt())
                 .build();
     }
 
@@ -131,6 +139,41 @@ public class UserServiceImpl implements UserService {
                 .token(token)
                 .fullName(user.getFullName())
                 .role(user.getRole().name())
+                .build();
+    }
+
+    @Override
+    public List<UserResponseDTO> getAllUsers(String search, String roleStr, String status) {
+        Role roleEnum = null;
+        if (roleStr != null && !roleStr.isEmpty()) {
+            try {
+                roleEnum = Role.valueOf(roleStr.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                // Invalid role string, ignore or handle
+            }
+        }
+
+        return userRepository.searchUsers(search, roleEnum, status)
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public UserResponseDTO getUserById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return mapToDTO(user);
+    }
+
+    private UserResponseDTO mapToDTO(User user) {
+        return UserResponseDTO.builder()
+                .id(user.getId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .role(user.getRole().name())
+                .status(user.getStatus())
+                .createdAt(user.getCreatedAt())
                 .build();
     }
 }
