@@ -22,9 +22,9 @@ public class CourseContentController {
         this.courseContentService = courseContentService;
     }
 
-    // 👨‍🏫 LECTURER
+    // LECTURER
     @PostMapping
-    @PreAuthorize("hasRole('LECTURER')")
+    @PreAuthorize("hasAnyRole('LECTURER', 'ADMIN')")
     public ResponseEntity<ApiResponse<CourseContentResponseDTO>> create(
             @RequestBody CourseContentRequestDTO request,
             Authentication auth) {
@@ -37,7 +37,7 @@ public class CourseContentController {
         );
     }
 
-    // 🎓 STUDENT
+    // STUDENT
     @GetMapping("/{courseId}")
     @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<ApiResponse<List<CourseContentResponseDTO>>> getContent(
