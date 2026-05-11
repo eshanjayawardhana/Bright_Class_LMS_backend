@@ -73,4 +73,19 @@ public class CourseContentServiceImpl implements CourseContentService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<CourseContentResponseDTO> getContentForLecturerOrAdmin(Long courseId) {
+        return contentRepository.findByCourseId(courseId)
+                .stream()
+                .map(contentMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteContent(Long id) {
+        CourseContent content = contentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Course content not found with id: " + id));
+        contentRepository.delete(content);
+    }
+
 }

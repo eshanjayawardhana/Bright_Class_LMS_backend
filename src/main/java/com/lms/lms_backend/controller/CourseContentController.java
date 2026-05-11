@@ -46,7 +46,29 @@ public class CourseContentController {
 
         List<CourseContentResponseDTO> response = courseContentService.getCourseContent(courseId, auth.getName());
         return ResponseEntity.ok(
+                ApiResponse.success("Content loaded successfully for student", response, 200)
+        );
+    }
+
+    // LECTURER & ADMIN
+    @GetMapping("/manage/{courseId}")
+    @PreAuthorize("hasAnyRole('LECTURER', 'ADMIN')")
+    public ResponseEntity<ApiResponse<List<CourseContentResponseDTO>>> getContentForManagement(
+            @PathVariable Long courseId) {
+
+        List<CourseContentResponseDTO> response = courseContentService.getContentForLecturerOrAdmin(courseId);
+        return ResponseEntity.ok(
                 ApiResponse.success("Content loaded successfully", response, 200)
+        );
+    }
+
+    // LECTURER & ADMIN
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('LECTURER', 'ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> deleteContent(@PathVariable Long id) {
+        courseContentService.deleteContent(id);
+        return ResponseEntity.ok(
+                ApiResponse.success("Course content deleted successfully", null, 200)
         );
     }
 }
