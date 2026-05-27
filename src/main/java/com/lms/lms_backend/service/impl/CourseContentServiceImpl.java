@@ -2,9 +2,11 @@ package com.lms.lms_backend.service.impl;
 
 import com.lms.lms_backend.dto.CourseContentRequestDTO;
 import com.lms.lms_backend.dto.CourseContentResponseDTO;
+import com.lms.lms_backend.entity.ContentAttachment;
 import com.lms.lms_backend.entity.Course;
 import com.lms.lms_backend.entity.CourseContent;
 import com.lms.lms_backend.entity.User;
+import com.lms.lms_backend.entity.enums.ContentType;
 import com.lms.lms_backend.entity.enums.EnrollmentStatus;
 import com.lms.lms_backend.exception.InvalidOperationException;
 import com.lms.lms_backend.exception.ResourceNotFoundException;
@@ -14,7 +16,9 @@ import com.lms.lms_backend.repository.CourseRepository;
 import com.lms.lms_backend.repository.EnrollmentRepository;
 import com.lms.lms_backend.repository.UserRepository;
 import com.lms.lms_backend.service.CourseContentService;
+import com.lms.lms_backend.service.SupabaseStorageService;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,13 +31,15 @@ public class CourseContentServiceImpl implements CourseContentService {
     private final UserRepository userRepository;
     private final EnrollmentRepository enrollmentRepository;
     private final CourseContentMapper contentMapper;
+    private final SupabaseStorageService supabaseStorageService;
 
-    public CourseContentServiceImpl(CourseContentRepository contentRepository, CourseRepository courseRepository, UserRepository userRepository, EnrollmentRepository enrollmentRepository, CourseContentMapper contentMapper) {
+    public CourseContentServiceImpl(CourseContentRepository contentRepository, CourseRepository courseRepository, UserRepository userRepository, EnrollmentRepository enrollmentRepository, CourseContentMapper contentMapper, SupabaseStorageService supabaseStorageService) {
         this.contentRepository = contentRepository;
         this.courseRepository = courseRepository;
         this.userRepository = userRepository;
         this.enrollmentRepository = enrollmentRepository;
         this.contentMapper = contentMapper;
+        this.supabaseStorageService = supabaseStorageService;
     }
 
     @Override
@@ -48,6 +54,47 @@ public class CourseContentServiceImpl implements CourseContentService {
         CourseContent content = contentMapper.toEntity(request, course, lecturer);
         CourseContent savedContent = contentRepository.save(content);
 
+        return contentMapper.toDto(savedContent);
+    }
+
+    @Override
+    public CourseContentResponseDTO createContentWithFile(CourseContentRequestDTO request, java.util.List<org.springframework.web.multipart.MultipartFile> files, String name) {
+        Course course = courseRepository.findById(request.getCourseId())
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found"));
+
+        User lecturer = userRepository.findByEmail(name)
+                .orElseThrow(() -> new ResourceNotFoundException("Lecturer not found"));
+
+        CourseContent content = new CourseContent();
+        content.setTitle(request.getTitle());
+        content.setDescription(request.getDescription());
+        content.setContentType(request.getContentType());
+        content.setScheduledTime(request.getScheduledTime());
+        content.setCourse(course);
+        content.setLecturer(lecturer);
+        content.setUrl(request.getUrl());
+
+        // Process multiple files
+        if (files != null && !files.isEmpty()) {
+            for (org.springframework.web.multipart.MultipartFile file : files) {
+                if (!file.isEmpty()) {
+                    try {
+                        String fileUrl = supabaseStorageService.uploadFile(file);
+
+                        ContentAttachment attachment = new ContentAttachment();
+                        attachment.setFileName(file.getOriginalFilename());
+                        attachment.setFileUrl(fileUrl);
+                        attachment.setCourseContent(content); // Link to the parent
+
+                        content.getAttachments().add(attachment); // Add to the list
+                    } catch (Exception e) {
+                        throw new RuntimeException("Failed to upload file to Supabase: " + e.getMessage());
+                    }
+                }
+            }
+        }
+
+        CourseContent savedContent = contentRepository.save(content);
         return contentMapper.toDto(savedContent);
     }
 

@@ -9,8 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/content")
@@ -23,16 +23,47 @@ public class CourseContentController {
     }
 
     // LECTURER
-    @PostMapping
+//    @PostMapping
+//    @PreAuthorize("hasAnyRole('LECTURER', 'ADMIN')")
+//    public ResponseEntity<ApiResponse<CourseContentResponseDTO>> create(
+//            @RequestBody CourseContentRequestDTO request,
+//            Authentication auth) {
+//
+//        CourseContentResponseDTO response = courseContentService.createContent(request, auth.getName());
+//
+//        return new ResponseEntity<>(
+//                ApiResponse.success("Course content created successfully", response, HttpStatus.CREATED.value()), // 201
+//                HttpStatus.CREATED
+//        );
+//    }
+
+    @PostMapping(consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyRole('LECTURER', 'ADMIN')")
-    public ResponseEntity<ApiResponse<CourseContentResponseDTO>> create(
-            @RequestBody CourseContentRequestDTO request,
+    public ResponseEntity<ApiResponse<CourseContentResponseDTO>> createContent(
+            @RequestParam("title") String title,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam("contentType") String contentType,
+            @RequestParam("courseId") Long courseId,
+            @RequestParam(value = "url", required = false) String url,
+            @RequestParam(value = "scheduledTime", required = false) String scheduledTime,
+            @RequestParam(value = "files", required = false) List<MultipartFile> files,
             Authentication auth) {
 
-        CourseContentResponseDTO response = courseContentService.createContent(request, auth.getName());
+        CourseContentRequestDTO request = new CourseContentRequestDTO();
+        request.setTitle(title);
+        request.setDescription(description);
+        request.setContentType(com.lms.lms_backend.entity.enums.ContentType.valueOf(contentType));
+        request.setCourseId(courseId);
+        request.setUrl(url);
+
+        if (scheduledTime != null && !scheduledTime.trim().isEmpty()) {
+            request.setScheduledTime(java.time.LocalDateTime.parse(scheduledTime));
+        }
+
+        CourseContentResponseDTO response = courseContentService.createContentWithFile(request, files, auth.getName());
 
         return new ResponseEntity<>(
-                ApiResponse.success("Course content created successfully", response, HttpStatus.CREATED.value()), // 201
+                ApiResponse.success("Course content uploaded successfully", response, HttpStatus.CREATED.value()),
                 HttpStatus.CREATED
         );
     }

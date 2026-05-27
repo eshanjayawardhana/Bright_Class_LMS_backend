@@ -3,8 +3,11 @@ package com.lms.lms_backend.entity;
 import com.lms.lms_backend.entity.enums.ContentType;
 import jakarta.persistence.*;
 import lombok.Builder;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "course_contents")
@@ -28,8 +31,13 @@ public class CourseContent {
     @Column(nullable = false)
     private String url;
 
-    private LocalDateTime scheduledTime; // Live Class start time
+    @OneToMany(mappedBy = "courseContent", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ContentAttachment> attachments = new ArrayList<>();
 
+    private LocalDateTime scheduledTime;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -41,12 +49,13 @@ public class CourseContent {
     public CourseContent() {
     }
 
-    public CourseContent(Long id, String title, String description, ContentType contentType, String url, LocalDateTime scheduledTime, LocalDateTime createdAt, Course course, User lecturer) {
+    public CourseContent(Long id, String title, String description, ContentType contentType, String url, List<ContentAttachment> attachments, LocalDateTime scheduledTime, LocalDateTime createdAt, Course course, User lecturer) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.contentType = contentType;
         this.url = url;
+        this.attachments = attachments;
         this.scheduledTime = scheduledTime;
         this.createdAt = createdAt;
         this.course = course;
@@ -93,6 +102,14 @@ public class CourseContent {
         this.url = url;
     }
 
+    public List<ContentAttachment> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(List<ContentAttachment> attachments) {
+        this.attachments = attachments;
+    }
+
     public LocalDateTime getScheduledTime() {
         return scheduledTime;
     }
@@ -133,6 +150,7 @@ public class CourseContent {
                 ", description='" + description + '\'' +
                 ", contentType=" + contentType +
                 ", url='" + url + '\'' +
+                ", attachments=" + attachments +
                 ", scheduledTime=" + scheduledTime +
                 ", createdAt=" + createdAt +
                 ", course=" + course +

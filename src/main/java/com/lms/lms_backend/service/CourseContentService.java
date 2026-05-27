@@ -3,6 +3,7 @@ package com.lms.lms_backend.service;
 import com.lms.lms_backend.dto.CourseContentRequestDTO;
 import com.lms.lms_backend.dto.CourseContentResponseDTO;
 import com.lms.lms_backend.dto.CourseResponseDTO;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -11,4 +12,5 @@ public interface CourseContentService {
     CourseContentResponseDTO createContent(CourseContentRequestDTO request, String name);
     List<CourseContentResponseDTO> getContentForLecturerOrAdmin(Long courseId);
     void deleteContent(Long id);
-}
+
+    CourseContentResponseDTO createContentWithFile(CourseContentRequestDTO request, java.util.List<org.springframework.web.multipart.MultipartFile> files, String name);}

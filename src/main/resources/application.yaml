@@ -52,3 +52,7 @@ jwt:
   expiration: 900000        # Access Token time (15 min = 15 * 60 * 1000)
   refresh:
     expiration: 604800000   # Refresh Token time(7 days = 7 * 24 * 60 * 60 * 1000)
+
+supabase:
+  url: https://ltadlpxqfmgwvmrycpru.supabase.co
+  key: sb_secret_C8Q9P3ShVy_lL_ABPC4TjQ_4cdMXY2h

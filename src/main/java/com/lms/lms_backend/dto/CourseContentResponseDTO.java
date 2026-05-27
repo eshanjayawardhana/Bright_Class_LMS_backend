@@ -4,6 +4,7 @@ import com.lms.lms_backend.entity.enums.ContentType;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 public class CourseContentResponseDTO {
@@ -12,6 +13,7 @@ public class CourseContentResponseDTO {
     private String description;
     private ContentType contentType;
     private String url;
+    private List<ContentAttachmentDTO> attachments;
     private LocalDateTime scheduledTime;
     private LocalDateTime createdAt;
     private Long courseId;
@@ -20,12 +22,13 @@ public class CourseContentResponseDTO {
     public CourseContentResponseDTO() {
     }
 
-    public CourseContentResponseDTO(Long id, String title, String description, ContentType contentType, String url, LocalDateTime scheduledTime, LocalDateTime createdAt, Long courseId, String lecturerName) {
+    public CourseContentResponseDTO(Long id, String title, String description, ContentType contentType, String url, List<ContentAttachmentDTO> attachments, LocalDateTime scheduledTime, LocalDateTime createdAt, Long courseId, String lecturerName) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.contentType = contentType;
         this.url = url;
+        this.attachments = attachments;
         this.scheduledTime = scheduledTime;
         this.createdAt = createdAt;
         this.courseId = courseId;
@@ -70,6 +73,14 @@ public class CourseContentResponseDTO {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public List<ContentAttachmentDTO> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(List<ContentAttachmentDTO> attachments) {
+        this.attachments = attachments;
     }
 
     public LocalDateTime getScheduledTime() {
