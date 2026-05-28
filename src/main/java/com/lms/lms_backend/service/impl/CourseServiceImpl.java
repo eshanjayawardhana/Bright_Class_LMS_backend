@@ -45,6 +45,11 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public List<CourseResponseDTO> getAllCourses(String search) {
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        String currentUserEmail = auth.getName();
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
         List<Course> courses;
 
         if (search != null && !search.trim().isEmpty()) {
@@ -53,6 +58,12 @@ public class CourseServiceImpl implements CourseService {
             courses = courseRepository.findAll();
         }
 
+
+        if (!isAdmin) {
+            courses = courses.stream()
+                    .filter(c -> c.getLecturer() != null && c.getLecturer().getEmail().equals(currentUserEmail))
+                    .collect(Collectors.toList());
+        }
         return courses.stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
