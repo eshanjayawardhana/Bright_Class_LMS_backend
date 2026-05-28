@@ -81,6 +81,13 @@ public class CourseContentController {
         );
     }
 
+    @GetMapping("/edit/{contentId}")
+    @PreAuthorize("hasAnyRole('LECTURER', 'ADMIN')")
+    public ResponseEntity<ApiResponse<CourseContentResponseDTO>> getContentById(@PathVariable Long contentId) {
+        CourseContentResponseDTO response = courseContentService.getContentById(contentId);
+        return ResponseEntity.ok(ApiResponse.success("Content fetched successfully", response,200));
+    }
+
     // LECTURER & ADMIN
     @GetMapping("/manage/{courseId}")
     @PreAuthorize("hasAnyRole('LECTURER', 'ADMIN')")
@@ -90,6 +97,36 @@ public class CourseContentController {
         List<CourseContentResponseDTO> response = courseContentService.getContentForLecturerOrAdmin(courseId);
         return ResponseEntity.ok(
                 ApiResponse.success("Content loaded successfully", response, 200)
+        );
+    }
+
+    @PutMapping(value = "/{contentId}", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyRole('LECTURER', 'ADMIN')")
+    public ResponseEntity<ApiResponse<CourseContentResponseDTO>> updateContent(
+            @PathVariable Long contentId,
+            @RequestParam("title") String title,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "url", required = false) String url,
+            @RequestParam(value = "scheduledTime", required = false) String scheduledTime,
+            @RequestParam(value = "files", required = false) java.util.List<org.springframework.web.multipart.MultipartFile> files,
+            @RequestParam(value = "deletedAttachmentIds", required = false) java.util.List<Long> deletedAttachmentIds,
+            Authentication auth) {
+
+        CourseContentRequestDTO request = new CourseContentRequestDTO();
+        request.setTitle(title);
+        request.setDescription(description);
+        request.setUrl(url);
+
+        if (scheduledTime != null && !scheduledTime.trim().isEmpty()) {
+            request.setScheduledTime(java.time.LocalDateTime.parse(scheduledTime));
+        }
+
+        CourseContentResponseDTO response = courseContentService.updateContentWithFiles(
+                contentId, request, files, deletedAttachmentIds, auth.getName()
+        );
+
+        return ResponseEntity.ok(
+                ApiResponse.success("Course content updated successfully", response, 200)
         );
     }
 

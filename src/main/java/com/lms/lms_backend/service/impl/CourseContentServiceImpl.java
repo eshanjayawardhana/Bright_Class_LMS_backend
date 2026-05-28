@@ -42,20 +42,20 @@ public class CourseContentServiceImpl implements CourseContentService {
         this.supabaseStorageService = supabaseStorageService;
     }
 
-    @Override
-    public CourseContentResponseDTO createContent(CourseContentRequestDTO request, String lecturerEmail) {
-
-        User lecturer = userRepository.findByEmail(lecturerEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("Lecturer not found"));
-
-        Course course = courseRepository.findById(request.getCourseId())
-                .orElseThrow(() -> new ResourceNotFoundException("Course not found"));
-
-        CourseContent content = contentMapper.toEntity(request, course, lecturer);
-        CourseContent savedContent = contentRepository.save(content);
-
-        return contentMapper.toDto(savedContent);
-    }
+//    @Override
+//    public CourseContentResponseDTO createContent(CourseContentRequestDTO request, String lecturerEmail) {
+//
+//        User lecturer = userRepository.findByEmail(lecturerEmail)
+//                .orElseThrow(() -> new ResourceNotFoundException("Lecturer not found"));
+//
+//        Course course = courseRepository.findById(request.getCourseId())
+//                .orElseThrow(() -> new ResourceNotFoundException("Course not found"));
+//
+//        CourseContent content = contentMapper.toEntity(request, course, lecturer);
+//        CourseContent savedContent = contentRepository.save(content);
+//
+//        return contentMapper.toDto(savedContent);
+//    }
 
     @Override
     public CourseContentResponseDTO createContentWithFile(CourseContentRequestDTO request, java.util.List<org.springframework.web.multipart.MultipartFile> files, String name) {
@@ -121,11 +121,67 @@ public class CourseContentServiceImpl implements CourseContentService {
     }
 
     @Override
+    public CourseContentResponseDTO getContentById(Long contentId) {
+        CourseContent content = contentRepository.findById(contentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Course content not found"));
+        return contentMapper.toDto(content);
+    }
+
+    @Override
     public List<CourseContentResponseDTO> getContentForLecturerOrAdmin(Long courseId) {
         return contentRepository.findByCourseId(courseId)
                 .stream()
                 .map(contentMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public CourseContentResponseDTO updateContentWithFiles(Long contentId, CourseContentRequestDTO request, java.util.List<org.springframework.web.multipart.MultipartFile> files, java.util.List<Long> deletedAttachmentIds, String name) {
+
+        CourseContent content = contentRepository.findById(contentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Course content not found"));
+
+        User lecturer = userRepository.findByEmail(name)
+                .orElseThrow(() -> new ResourceNotFoundException("Lecturer not found"));
+
+        // Only the owner or an admin should be able to edit
+        if (!content.getLecturer().getId().equals(lecturer.getId()) && !lecturer.getRole().name().equals("ADMIN")) {
+            throw new RuntimeException("You don't have permission to edit this content");
+        }
+
+        // 1. Update basic details
+        content.setTitle(request.getTitle());
+        content.setDescription(request.getDescription());
+        content.setUrl(request.getUrl());
+        content.setScheduledTime(request.getScheduledTime());
+
+        // 2. Remove deleted attachments
+        if (deletedAttachmentIds != null && !deletedAttachmentIds.isEmpty()) {
+            content.getAttachments().removeIf(attachment -> deletedAttachmentIds.contains(attachment.getId()));
+        }
+
+        // 3. Process new files
+        if (files != null && !files.isEmpty()) {
+            for (org.springframework.web.multipart.MultipartFile file : files) {
+                if (!file.isEmpty()) {
+                    try {
+                        String fileUrl = supabaseStorageService.uploadFile(file);
+
+                        ContentAttachment attachment = new ContentAttachment();
+                        attachment.setFileName(file.getOriginalFilename());
+                        attachment.setFileUrl(fileUrl);
+                        attachment.setCourseContent(content);
+
+                        content.getAttachments().add(attachment);
+                    } catch (Exception e) {
+                        throw new RuntimeException("Failed to upload new file to Supabase: " + e.getMessage());
+                    }
+                }
+            }
+        }
+
+        CourseContent updatedContent = contentRepository.save(content);
+        return contentMapper.toDto(updatedContent);
     }
 
     @Override
